@@ -4,6 +4,16 @@
   #shopify-section-{{ section.id }} {
     --grid-desktop: {{ section.settings.columns_desktop }};
     --grid-mobile: {{ section.settings.columns_mobile }};
+
+  }
+  #shopify-section-{{ section.id }} .card__media {
+  height: 220px !important;
+  background: #f0f0f0 !important;
+  }
+  #shopify-section-{{ section.id }} .placeholder-line,
+  #shopify-section-{{ section.id }} .placeholder-button {
+    background: #e0e0e0 !important;
+    height: 25px !important;
   }
 </style>
 
@@ -44,7 +54,33 @@
       {% endfor %}
     </ul>
   {% else %}
-    <p>{{ section.settings.empty_text }}</p>
+    <ul
+      class="collection-grid"
+      id="product-grid"
+      style="
+        --columns-mobile: {{ section.settings.columns_mobile }};
+        --columns-desktop: {{ section.settings.columns_desktop }};
+      "
+    >
+      {% for i in (1..section.settings.products_per_page) %}
+        <li class="collection-grid__item product-card product-card--placeholder">
+          <div class="card-wrapper">
+            <div class="card card--standard">
+              <div class="card__media">
+                <div class="placeholder-media"></div>
+              </div>
+              <div class="card__content">
+                <div class="placeholder-vendor">&nbsp;</div>
+                <div class="placeholder-line placeholder-title">&nbsp;</div>
+                <div class="placeholder-line placeholder-price">&nbsp;</div>
+                <div class="placeholder-line--small">&nbsp;</div>
+                <div class="placeholder-button">&nbsp;</div>
+              </div>
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
   {% endif %}
 </div>
 
@@ -73,7 +109,7 @@
       "min": 4,
       "max": 24,
       "step": 4,
-      "default": 8
+      "default": 4
     },
 
     {
