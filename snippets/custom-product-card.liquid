@@ -1,0 +1,75 @@
+{% assign hover_image_behavior = hover_image_behavior | default: 'none' %}
+{% assign hover_scroll_speed = hover_scroll_speed | default: 300 %}
+{% assign hover_image_limit = hover_image_limit | default: 1 %}
+{% assign show_vendor = show_vendor | default: false %}
+{% assign show_add_to_cart = show_add_to_cart | default: false %}
+{% assign show_cart_icon = show_cart_icon | default: false %}
+{% assign add_to_cart_text = add_to_cart_text | default: 'Add to cart' %}
+
+<li class="collection-grid__item">
+  <a href="{{ product.url }}" class="product-card-link">
+    <div
+      class=" product-card-image-wrap{% if section.settings.hover_image_behavior != 'none' and product.images.size > 1 %} has-hover{% endif %}"
+      data-hover="{{ section.settings.hover_image_behavior }}"
+      data-speed="{{ section.settings.hover_scroll_speed }}"
+    >
+      {% if product.images.size > 0 %}
+        {% for image in product.images limit: hover_image_limit %}
+          <img
+            src="{{ image | image_url: width: 400 }}"
+            alt="{{ image.alt | default: product.title | escape }}"
+            loading="lazy"
+            class="product-card-image{% if forloop.first %} is-active{% endif %}"
+          >
+        {% endfor %}
+      {% else %}
+        <div class="product-card-placeholder">
+          <img
+            src="{{ 'icon-shirt.svg' | asset_url }}"
+            alt="Product placeholder"
+            loading="lazy"
+          >
+        </div>
+      {% endif %}
+    </div>
+
+    <h3 class="product-card-title">
+      {{ product.title }}
+    </h3>
+  </a>
+
+  <div class="product-card-prices">
+    <span class="product-price">
+      {{ product.price | money_with_currency }}
+    </span>
+  </div>
+
+  {% if section.settings.show_vendor %}
+    <span class="product-vendor">
+      {{ product.vendor }}
+    </span>
+  {% endif %}
+
+  {% if section.settings.show_add_to_cart %}
+    <form method="post" action="/cart/add" class="product-card-form">
+      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+
+      <button
+        type="submit"
+        class="product-card-atc"
+        {% unless product.available %}
+          disabled
+        {% endunless %}
+      >
+        {% if product.available %}
+          {% if section.settings.show_cart_icon %}
+            {% render 'icon-cart' %}
+          {% endif %}
+          <span>{{ section.settings.add_to_cart_text }}</span>
+        {% else %}
+          Sold out
+        {% endif %}
+      </button>
+    </form>
+  {% endif %}
+</li>

@@ -1,0 +1,275 @@
+/* =========================
+   HEADER BASE
+========================= */
+
+ .site-header {
+    --header-bg: {{ section.settings.background_color }};
+    --header-text: {{ section.settings.text_color }};
+    --header-hover: {{ section.settings.hover_color }};
+    --logo-width: {{ section.settings.logo_width }}px;
+      --height: {{ section.settings.header_height }}px;
+       --box-shadow: {% if section.settings.header_shadow %}0 2px 10px rgba(0,0,0,.08){% else %}none{% endif %};
+  }
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+}
+.header-logo a {
+  text-decoration: none;
+}
+/* =========================
+   LOGO
+========================= */
+
+.header-logo h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* =========================
+   DESKTOP NAV
+========================= */
+
+.header-nav {
+  display: flex;
+  gap: 32px;
+}
+
+.header-nav a,
+.nav-button {
+  font-family: var(--font-body-family);
+  font-size: 16px;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.header-nav a:hover,
+.nav-button:hover {
+  color: #111827;
+}
+
+.nav-item {
+  position: relative;
+}
+
+/* =========================
+   DROPDOWN
+========================= */
+
+.dropdown-wrapper {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  width: 420px;
+  max-width: 90vw;
+  padding: 0 8px;
+  display: none;
+  z-index: 10;
+}
+
+.nav-item:hover > .dropdown-wrapper {
+  display: block;
+}
+
+.dropdown-box {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.dropdown-grid {
+  display: grid;
+  gap: 24px;
+  padding: 24px;
+}
+
+.dropdown-link {
+  display: flex;
+  padding: 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background-color 0.25s ease;
+}
+
+.dropdown-link:hover {
+  background: #f5f5f5;
+}
+
+.dropdown-text p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* =========================
+   HEADER ACTIONS
+========================= */
+
+.header-actions {
+  display: flex;
+  gap: 20px;
+}
+
+.header-actions a {
+  color: #0d0f20;
+  text-decoration: none;
+}
+
+/* =========================
+   ICON LINK (CART)
+========================= */
+
+.icon-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-count {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+
+  background: #000;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 999px;
+}
+
+.icon-link img {
+  width: 33px;
+  height: 33px;
+  display: block;
+  object-fit: contain;
+}
+
+
+
+
+/* =========================
+   MOBILE MENU
+========================= */
+
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  z-index: 9999;
+}
+
+.mobile-menu-box {
+  width: 100%;
+  max-width: 360px;
+  height: 100%;
+  padding: 16px;
+  background: #fff;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.mobile-nav {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.mobile-link,
+.mobile-sublink {
+  display: block;
+  padding: 12px;
+  border-radius: 8px;
+  color: #374151;
+  text-decoration: none;
+}
+
+.mobile-link:hover,
+.mobile-sublink:hover {
+  background: #f3f4f6;
+}
+
+.mobile-dropdown-btn {
+  width: 100%;
+  padding: 12px;
+  background: none;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.mobile-dropdown-content {
+  display: none;
+  padding-left: 12px;
+}
+
+.mobile-dropdown-content.open {
+  display: block;
+}
+
+.mobile-menu-button {
+  display: none;
+}
+
+/* =========================
+   MOBILE BREAKPOINT
+========================= */
+
+@media (max-width: 768px) {
+  .header-nav,
+  .header-actions {
+    display: none;
+  }
+
+  .mobile-menu-button {
+    display: block;
+  }
+
+  .header-inner {
+    justify-content: space-between;
+  }
+}
+
+/* =========================
+   UTILITIES
+========================= */
+
+.text-danger {
+  color: red !important;
+}
