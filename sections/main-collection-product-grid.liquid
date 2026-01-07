@@ -6,9 +6,9 @@
     --grid-mobile: {{ section.settings.columns_mobile }};
   }
 </style>
-
 <div class="collection-page">
   {% paginate collection.products by section.settings.products_per_page %}
+    <a class="back-link" href="{{ routes.collections_url }}">Go Back to Collections</a>
     {% if section.settings.heading != blank %}
       <h2 class="collection-page__heading">
         {{ section.settings.heading }}

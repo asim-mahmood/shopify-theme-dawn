@@ -1,0 +1,17 @@
+{{ 'custom-template-collection.css' | asset_url | stylesheet_tag }}
+{{ 'custom-collection-grid.js' | asset_url | script_tag }}
+<li class="collection-grid__item product-card product-card--placeholder">
+  <div class="card-wrapper">
+    <div class="card card--standard">
+      <div class="card__media">
+        <div class="placeholder-media"></div>
+      </div>
+
+      <div class="card__content">
+        <div class="placeholder-line placeholder-title"></div>
+        <div class="placeholder-line placeholder-price"></div>
+        <div class="placeholder-button"></div>
+      </div>
+    </div>
+  </div>
+</li>

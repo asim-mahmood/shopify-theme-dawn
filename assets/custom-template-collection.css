@@ -21,6 +21,36 @@
     grid-template-columns: repeat(var(--grid-desktop), minmax(0, 1fr));
   }
 } */
+.collection-page .back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  margin-bottom: 1.5rem;
+  background: #fff;
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.collection-page .back-link:hover {
+  color: #111827;
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.collection-page .back-link:before {
+  content: "←";
+  font-size: 1rem;
+  font-weight: bold;
+}
+
 .collection-grid {
   list-style: none;
   margin: 0;
