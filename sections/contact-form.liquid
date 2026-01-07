@@ -127,8 +127,15 @@
         </label>
       </div>
       <div class="contact__button">
-        <button type="submit" class="button">
-          {{ 'templates.contact.form.send' | t }}
+        <button
+          type="submit"
+          class="button button--{{ section.settings.button_style }}"
+        >
+          {% if section.settings.button_label != blank %}
+            {{ section.settings.button_label }}
+          {% else %}
+            {{ 'templates.contact.form.send' | t }}
+          {% endif %}
         </button>
       </div>
     {%- endform -%}
@@ -207,6 +214,21 @@
       "unit": "px",
       "label": "t:sections.all.padding.padding_bottom",
       "default": 36
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button text"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button style",
+      "default": "primary",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" }
+      ]
     }
   ],
   "presets": [
