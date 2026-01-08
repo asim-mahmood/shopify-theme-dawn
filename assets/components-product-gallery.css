@@ -1,0 +1,562 @@
+/* ============================================
+   PRODUCT MEDIA GALLERY STYLES
+   ============================================ */
+
+.product-media {
+  position: relative;
+  width: 100%;
+}
+
+/* Media Item Base Styles */
+.media-item {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: rgba(var(--color-foreground), 0.04);
+  cursor: pointer;
+  border-radius: 0.8rem;
+}
+
+.media-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.media-item:hover .media-image {
+  transform: scale(1.05);
+}
+
+.zoom-icon {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 4rem;
+  height: 4rem;
+  background: rgba(var(--color-background), 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.media-item:hover .zoom-icon {
+  opacity: 1;
+}
+
+/* Aspect Ratios */
+.aspect-ratio--square .media-item {
+  aspect-ratio: 1 / 1;
+}
+
+.aspect-ratio--landscape .media-item {
+  aspect-ratio: 4 / 3;
+}
+
+.aspect-ratio--portrait .media-item {
+  aspect-ratio: 3 / 4;
+}
+
+.aspect-ratio--widescreen .media-item {
+  aspect-ratio: 16 / 9;
+}
+
+/* Video Styles */
+.media-video,
+.media-video iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.media-video--external {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+}
+
+.media-video--external iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================
+   CAROUSEL LAYOUT
+   ============================================ */
+.product-media--carousel {
+  width: 100%;
+}
+
+.carousel-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.8rem;
+}
+
+.carousel-slides {
+  display: flex;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.carousel-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+}
+
+.carousel-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4.8rem;
+  height: 4.8rem;
+  background: rgba(var(--color-background), 0.95);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.1);
+}
+
+.carousel-button:hover {
+  background: rgb(var(--color-background));
+  box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.15);
+}
+
+.carousel-button--prev {
+  left: 1.5rem;
+}
+
+.carousel-button--next {
+  right: 1.5rem;
+}
+
+.carousel-dots {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.8rem;
+  z-index: 10;
+}
+
+.carousel-dot {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: rgba(var(--color-background), 0.5);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.carousel-dot.active {
+  width: 2.4rem;
+  border-radius: 0.4rem;
+  background: rgb(var(--color-background));
+}
+
+.carousel-thumbnails {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+}
+
+.carousel-thumbnail {
+  flex: 0 0 8rem;
+  width: 8rem;
+  height: 8rem;
+  border: 0.2rem solid rgba(var(--color-foreground), 0.1);
+  border-radius: 0.4rem;
+  overflow: hidden;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.carousel-thumbnail:hover {
+  border-color: rgba(var(--color-foreground), 0.3);
+}
+
+.carousel-thumbnail.active {
+  border-color: rgb(var(--color-foreground));
+}
+
+.carousel-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnail-video-icon,
+.thumbnail-3d-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* ============================================
+   GRID LAYOUT
+   ============================================ */
+.product-media-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.product-media-grid--1,
+.product-media-grid--2 {
+  grid-template-columns: 1fr;
+}
+
+.product-media-grid--3,
+.product-media-grid--4 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.product-media-grid--5,
+.product-media-grid--6 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media screen and (min-width: 750px) {
+  .product-media-grid--3,
+  .product-media-grid--4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .product-media-grid--5,
+  .product-media-grid--6 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ============================================
+   THUMBNAILS LAYOUT (Main + Sidebar)
+   ============================================ */
+.product-media-thumbnails-layout {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+}
+
+@media screen and (min-width: 750px) {
+  .product-media-thumbnails-layout {
+    grid-template-columns: 10rem 1fr;
+    gap: 2rem;
+  }
+}
+
+.thumbnails-sidebar {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  order: 2;
+}
+
+@media screen and (min-width: 750px) {
+  .thumbnails-sidebar {
+    flex-direction: column;
+    overflow-y: auto;
+    max-height: 60rem;
+    order: 1;
+  }
+}
+
+.thumbnail-button {
+  flex: 0 0 8rem;
+  width: 8rem;
+  height: 8rem;
+  border: 0.2rem solid rgba(var(--color-foreground), 0.1);
+  border-radius: 0.4rem;
+  overflow: hidden;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.thumbnail-button:hover {
+  border-color: rgba(var(--color-foreground), 0.3);
+}
+
+.thumbnail-button.active {
+  border-color: rgb(var(--color-foreground));
+  box-shadow: 0 0 0 0.2rem rgba(var(--color-foreground), 0.2);
+}
+
+.thumbnail-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnail-icon {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.3rem;
+  font-size: 1rem;
+  font-weight: 600;
+  z-index: 2;
+}
+
+.main-media-container {
+  position: relative;
+  order: 1;
+}
+
+@media screen and (min-width: 750px) {
+  .main-media-container {
+    order: 2;
+  }
+}
+
+.main-media {
+  display: none;
+}
+
+.main-media.active {
+  display: block;
+}
+
+/* ============================================
+   STACKED LAYOUT
+   ============================================ */
+.product-media-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stacked-item {
+  width: 100%;
+}
+
+/* ============================================
+   LIGHTBOX
+   ============================================ */
+.media-lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.lightbox-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(0.8rem);
+}
+
+.lightbox-content {
+  position: relative;
+  width: 90vw;
+  height: 90vh;
+  max-width: 140rem;
+  z-index: 1;
+}
+
+.lightbox-media {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-media .media-item {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  cursor: default;
+}
+
+.lightbox-media .media-image {
+  max-width: 100%;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -4.5rem;
+  right: 0;
+  width: 4rem;
+  height: 4rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 2.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5rem;
+  height: 5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 3rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.lightbox-nav--prev {
+  left: 2rem;
+}
+
+.lightbox-nav--next {
+  right: 2rem;
+}
+
+/* ============================================
+   MEDIA SIZES
+   ============================================ */
+.product-media--small .media-item {
+  max-height: 40rem;
+}
+
+.product-media--medium .media-item {
+  max-height: 60rem;
+}
+
+.product-media--large .media-item {
+  max-height: 80rem;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media screen and (max-width: 749px) {
+  .carousel-button {
+    width: 3.6rem;
+    height: 3.6rem;
+  }
+
+  .carousel-button--prev {
+    left: 1rem;
+  }
+
+  .carousel-button--next {
+    right: 1rem;
+  }
+
+  .carousel-dots {
+    bottom: 1rem;
+  }
+
+  .lightbox-nav {
+    width: 4rem;
+    height: 4rem;
+    font-size: 2.4rem;
+  }
+
+  .lightbox-nav--prev {
+    left: 1rem;
+  }
+
+  .lightbox-nav--next {
+    right: 1rem;
+  }
+}
+
+/* Hide scrollbar but keep functionality */
+.carousel-thumbnails::-webkit-scrollbar,
+.thumbnails-sidebar::-webkit-scrollbar {
+  height: 0.4rem;
+  width: 0.4rem;
+}
+
+.carousel-thumbnails::-webkit-scrollbar-track,
+.thumbnails-sidebar::-webkit-scrollbar-track {
+  background: rgba(var(--color-foreground), 0.05);
+  border-radius: 0.2rem;
+}
+
+.carousel-thumbnails::-webkit-scrollbar-thumb,
+.thumbnails-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-foreground), 0.2);
+  border-radius: 0.2rem;
+}
+/* Fix carousel video grey background + height */
+.carousel-slide .media-item {
+  background-color: transparent;
+}
+
+.carousel-slide .media-video--external {
+  padding-bottom: 0;
+  height: 100%;
+}
+
+.carousel-slide iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

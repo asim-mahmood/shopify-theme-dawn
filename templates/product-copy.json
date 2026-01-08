@@ -60,10 +60,10 @@
         "vendor",
         "title",
         "price",
-        "description",
         "variant_picker",
         "quantity_selector",
         "buy_buttons",
+        "description",
         "share"
       ],
       "settings": {

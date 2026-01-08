@@ -1,120 +1,362 @@
 {% comment %}
-  Renders product media
+  Renders product media gallery with multiple layout options
 
   Accepts:
-  - media: {Object} Product Media object
-  - loop: {Boolean} Enable video looping (optional)
-  - variant_image: {Boolean} Whether or not media is associated with a variant
+  - product: {Object} Product object
+  - media_layout: {String} 'carousel' | 'grid' | 'thumbnails' | 'stacked'
+  - media_size: {String} 'small' | 'medium' | 'large'
+  - enable_video_looping: {Boolean}
+  - enable_lightbox: {Boolean}
+  - show_thumbnails: {Boolean}
+  - media_aspect_ratio: {String}
+  - enable_zoom: {Boolean}
 
   Usage:
-  {% render 'product-media',
-    media: media,
-    loop: section.settings.enable_video_looping,
-    variant_image: true
-  %}
+  {% render 'product-media', product: product, media_layout: 'carousel' %}
 {% endcomment %}
 
-{%- if media.media_type == 'image' -%}
-  <img
-    class="global-media-settings global-media-settings--no-shadow{% if variant_image %} product__media-item--variant{% endif %}"
-    srcset="
-      {%- if media.preview_image.width >= 550 -%}{{ media.preview_image | image_url: width: 550 }} 550w,{%- endif -%}
-      {%- if media.preview_image.width >= 1100 -%}{{ media.preview_image | image_url: width: 1100 }} 1100w,{%- endif -%}
-      {%- if media.preview_image.width >= 1445 -%}{{ media.preview_image | image_url: width: 1445 }} 1445w,{%- endif -%}
-      {%- if media.preview_image.width >= 1680 -%}{{ media.preview_image | image_url: width: 1680 }} 1680w,{%- endif -%}
-      {%- if media.preview_image.width >= 2048 -%}{{ media.preview_image | image_url: width: 2048 }} 2048w,{%- endif -%}
-      {%- if media.preview_image.width >= 2200 -%}{{ media.preview_image | image_url: width: 2200 }} 2200w,{%- endif -%}
-      {%- if media.preview_image.width >= 2890 -%}{{ media.preview_image | image_url: width: 2890 }} 2890w,{%- endif -%}
-      {%- if media.preview_image.width >= 4096 -%}{{ media.preview_image | image_url: width: 4096 }} 4096w,{%- endif -%}
-      {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
-    "
-    sizes="(min-width: 750px) calc(100vw - 22rem), 1100px"
-    src="{{ media.preview_image | image_url: width: 1445 }}"
-    alt="{{ media.alt | escape }}"
-    loading="lazy"
-    width="1100"
-    height="{{ 1100 | divided_by: media.preview_image.aspect_ratio | ceil }}"
-    data-media-id="{{ media.id }}"
-  >
-{%- else -%}
-  {%- if media.media_type == 'model' -%}
-    <div class="product-media-modal__model" data-media-id="{{ media.id }}">
-      <product-model
-        class="deferred-media media media--transparent global-media-settings global-media-settings--no-shadow"
-        style="padding-top: min(calc(100vh - 12rem), 100%)"
-      >
-  {%- else -%}
-    <deferred-media
-      class="deferred-media media global-media-settings global-media-settings--no-shadow"
-      style="padding-top: min(calc(100vh - 12rem), {{ 1 | divided_by: media.aspect_ratio | times: 100 }}%)"
-      data-media-id="{{ media.id }}"
-    >
-  {%- endif -%}
+{% liquid
+  assign media_layout = media_layout | default: 'thumbnails'
+  assign media_size = media_size | default: 'medium'
+  assign enable_video_looping = enable_video_looping | default: true
+  assign enable_lightbox = enable_lightbox | default: true
+  assign show_thumbnails = show_thumbnails | default: true
+  assign media_aspect_ratio = media_aspect_ratio | default: 'adapt'
+  assign enable_zoom = enable_zoom | default: false
+%}
+{{ 'components-product-gallery.css' | asset_url | stylesheet_tag }}
+{% comment %} <link rel="stylesheet" href="{{ 'component-product-gallery.css' | asset_url }}" media="print" onload="this.media='all'"> {% endcomment %}
 
-  <button id="Deferred-Poster-Modal-{{ media.id }}" class="deferred-media__poster" type="button">
-    <span class="deferred-media__poster-button motion-reduce">
-      {%- if media.media_type == 'model' -%}
-        <span class="svg-wrapper">{{ 'icon-3d-model' | inline_asset_content }}</span>
-      {%- else -%}
-        <span class="svg-wrapper">{{ 'icon-play.svg' | inline_asset_content }}</span>
-      {%- endif -%}
-    </span>
-    <img
-      srcset="
-        {% if media.preview_image.width >= 288 %}{{ media.preview_image | image_url: width: 288 }} 288w,{% endif %}
-        {% if media.preview_image.width >= 576 %}{{ media.preview_image | image_url: width: 576 }} 576w,{% endif %}
-        {% if media.preview_image.width >= 550 %}{{ media.preview_image | image_url: width: 550 }} 550w,{% endif %}
-        {% if media.preview_image.width >= 1100 %}{{ media.preview_image | image_url: width: 1100 }} 1100w,{% endif %}
-        {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
-      "
-      src="{{ media | image_url: width: 550, height: 550 }}"
-      sizes="(min-width: 1200px) calc((1200px - 10rem) / 2), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
-      loading="lazy"
-      width="576"
-      height="{{ 576 | divided_by: media.preview_image.aspect_ratio }}"
-      alt="{{ media.preview_image.alt | escape }}"
-    >
-  </button>
-  <template>
-    {%- case media.media_type -%}
-      {%- when 'external_video' -%}
-        {%- assign video_class = 'js-' | append: media.host -%}
-        {%- if media.host == 'youtube' -%}
-          {{
-            media
-            | external_video_url: autoplay: true, loop: loop, playlist: media.external_id
-            | external_video_tag: class: video_class, loading: 'lazy'
-          }}
-        {%- else -%}
-          {{
-            media
-            | external_video_url: autoplay: true, loop: loop
-            | external_video_tag: class: video_class, loading: 'lazy'
-          }}
-        {%- endif -%}
-      {%- when 'video' -%}
-        {{ media | media_tag: image_size: '2048x', autoplay: true, loop: loop, controls: true, preload: 'none' }}
-      {%- when 'model' -%}
-        {{ media | media_tag: image_size: '2048x', toggleable: true }}
-    {%- endcase -%}
-  </template>
+<div class="product-media product-media--{{ media_layout }} product-media--{{ media_size }}" data-product-media>
+  {% case media_layout %}
+      {% comment %} === CAROUSEL LAYOUT === {% endcomment %}
+    {% when 'carousel' %}
+      <div class="product-media-carousel" data-carousel>
+        <div class="carousel-container">
+          <div class="carousel-slides" data-carousel-slides>
+            {% for media in product.media %}
+              <div class="carousel-slide" data-media-index="{{ forloop.index0 }}">
+                {% render 'product-media-item',
+                  media: media,
+                  index: forloop.index0,
+                  enable_lightbox: enable_lightbox,
+                  enable_zoom: enable_zoom,
+                  media_aspect_ratio: media_aspect_ratio,
+                  enable_video_looping: enable_video_looping
+                %}
+              </div>
+            {% endfor %}
+          </div>
 
-  {%- if media.media_type == 'model' -%}
-    </product-model>
-    <button
-      class="button button--full-width product__xr-button"
-      type="button"
-      aria-label="{{ 'products.product.xr_button_label' | t }}"
-      data-shopify-xr
-      data-shopify-model3d-id="{{ media.id }}"
-      data-shopify-title="title"
-      data-shopify-xr-hidden
-    >
-      <span class="svg-wrapper">{{ 'icon-3d-model' | inline_asset_content }}</span>
-      {{ 'products.product.xr_button' | t }}
-    </button>
+          {% if product.media.size > 1 %}
+            <button class="carousel-button carousel-button--prev" data-carousel-prev>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <button class="carousel-button carousel-button--next" data-carousel-next>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+
+            <div class="carousel-dots" data-carousel-dots>
+              {% for media in product.media %}
+                <button
+                  class="carousel-dot {% if forloop.first %}active{% endif %}"
+                  data-carousel-dot="{{ forloop.index0 }}"
+                ></button>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        {% if show_thumbnails and product.media.size > 1 %}
+          <div class="carousel-thumbnails">
+            {% for media in product.media %}
+              <button
+                class="carousel-thumbnail {% if forloop.first %}active{% endif %}"
+                data-thumbnail="{{ forloop.index0 }}"
+              >
+                {% if media.media_type == 'image' %}
+                  <img
+                    src="{{ media | image_url: width: 120 }}"
+                    alt="{{ media.alt | escape }}"
+                    loading="lazy"
+                    width="60"
+                    height="60"
+                  >
+                {% elsif media.media_type == 'video' or media.media_type == 'external_video' %}
+                  <div class="thumbnail-video-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M6.5 5.5L13.5 10L6.5 14.5V5.5Z"/>
+                    </svg>
+                  </div>
+                  <img
+                    src="{{ media.preview_image | image_url: width: 120 }}"
+                    alt="{{ media.alt | escape }}"
+                    loading="lazy"
+                    width="60"
+                    height="60"
+                  >
+                {% elsif media.media_type == 'model' %}
+                  <div class="thumbnail-3d-icon">3D</div>
+                  <img
+                    src="{{ media.preview_image | image_url: width: 120 }}"
+                    alt="{{ media.alt | escape }}"
+                    loading="lazy"
+                    width="60"
+                    height="60"
+                  >
+                {% endif %}
+              </button>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      {% comment %} === GRID LAYOUT === {% endcomment %}
+    {% when 'grid' %}
+      <div class="product-media-grid product-media-grid--{{ product.media.size }}">
+        {% for media in product.media %}
+          <div class="grid-item" data-media-index="{{ forloop.index0 }}">
+            {% render 'product-media-item',
+              media: media,
+              index: forloop.index0,
+              enable_lightbox: enable_lightbox,
+              enable_zoom: enable_zoom,
+              media_aspect_ratio: media_aspect_ratio,
+              enable_video_looping: enable_video_looping
+            %}
+          </div>
+        {% endfor %}
+      </div>
+
+      {% comment %} === THUMBNAILS LAYOUT (Main + Thumbnails) === {% endcomment %}
+    {% when 'thumbnails' %}
+      <div class="product-media-thumbnails-layout">
+        {% if show_thumbnails and product.media.size > 1 %}
+          <div class="thumbnails-sidebar">
+            {% for media in product.media %}
+              <button
+                class="thumbnail-button {% if forloop.first %}active{% endif %}"
+                data-thumbnail="{{ forloop.index0 }}"
+              >
+                {% if media.media_type == 'image' %}
+                  <img
+                    src="{{ media | image_url: width: 120 }}"
+                    alt="{{ media.alt | escape }}"
+                    loading="lazy"
+                    width="80"
+                    height="80"
+                  >
+                {% elsif media.media_type == 'video' or media.media_type == 'external_video' %}
+                  <div class="thumbnail-icon">▶</div>
+                  <img
+                    src="{{ media.preview_image | image_url: width: 120 }}"
+                    alt="{{ media.alt | escape }}"
+                    loading="lazy"
+                    width="80"
+                    height="80"
+                  >
+                {% elsif media.media_type == 'model' %}
+                  <div class="thumbnail-icon">3D</div>
+                  <img
+                    src="{{ media.preview_image | image_url: width: 120 }}"
+                    alt="{{ media.alt | escape }}"
+                    loading="lazy"
+                    width="80"
+                    height="80"
+                  >
+                {% endif %}
+              </button>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="main-media-container">
+          {% for media in product.media %}
+            <div class="main-media {% if forloop.first %}active{% endif %}" data-media-index="{{ forloop.index0 }}">
+              {% render 'product-media-item',
+                media: media,
+                index: forloop.index0,
+                enable_lightbox: enable_lightbox,
+                enable_zoom: enable_zoom,
+                media_aspect_ratio: media_aspect_ratio,
+                enable_video_looping: enable_video_looping
+              %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% comment %} === STACKED LAYOUT === {% endcomment %}
+    {% when 'stacked' %}
+      <div class="product-media-stacked">
+        {% for media in product.media %}
+          <div class="stacked-item" data-media-index="{{ forloop.index0 }}">
+            {% render 'product-media-item',
+              media: media,
+              index: forloop.index0,
+              enable_lightbox: enable_lightbox,
+              enable_zoom: enable_zoom,
+              media_aspect_ratio: media_aspect_ratio,
+              enable_video_looping: enable_video_looping
+            %}
+          </div>
+        {% endfor %}
+      </div>
+  {% endcase %}
+</div>
+
+{% comment %} Lightbox Modal {% endcomment %}
+{% if enable_lightbox %}
+  <div class="media-lightbox" id="media-lightbox" style="display:none;">
+    <div class="lightbox-backdrop" onclick="closeLightbox()"></div>
+    <div class="lightbox-content">
+      <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+      <div class="lightbox-media" id="lightbox-media"></div>
+
+      {% if product.media.size > 1 %}
+        <button class="lightbox-nav lightbox-nav--prev" onclick="lightboxPrev()">‹</button>
+        <button class="lightbox-nav lightbox-nav--next" onclick="lightboxNext()">›</button>
+      {% endif %}
     </div>
-  {%- else -%}
-    </deferred-media>
-  {%- endif -%}
-{%- endif -%}
+  </div>
+{% endif %}
+
+<script>
+  // Product Media Gallery Script
+  (function() {
+    const mediaLayout = '{{ media_layout }}';
+    let currentIndex = 0;
+    const totalMedia = {{ product.media.size }};
+    
+    {% if media_layout == 'carousel' %}
+      // Carousel functionality
+      const carousel = document.querySelector('[data-carousel]');
+      if (carousel) {
+        const slides = carousel.querySelector('[data-carousel-slides]');
+        const prevBtn = carousel.querySelector('[data-carousel-prev]');
+        const nextBtn = carousel.querySelector('[data-carousel-next]');
+        const dots = carousel.querySelectorAll('[data-carousel-dot]');
+        const thumbnails = carousel.querySelectorAll('[data-thumbnail]');
+        
+        function updateCarousel(index) {
+          currentIndex = index;
+          slides.style.transform = `translateX(-${index * 100}%)`;
+          
+          // Update dots
+          dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+          });
+          
+          // Update thumbnails
+          thumbnails.forEach((thumb, i) => {
+            thumb.classList.toggle('active', i === index);
+          });
+        }
+        
+        if (prevBtn) prevBtn.addEventListener('click', () => {
+          const newIndex = (currentIndex - 1 + totalMedia) % totalMedia;
+          updateCarousel(newIndex);
+        });
+        
+        if (nextBtn) nextBtn.addEventListener('click', () => {
+          const newIndex = (currentIndex + 1) % totalMedia;
+          updateCarousel(newIndex);
+        });
+        
+        dots.forEach((dot, index) => {
+          dot.addEventListener('click', () => updateCarousel(index));
+        });
+        
+        thumbnails.forEach((thumb, index) => {
+          thumb.addEventListener('click', () => updateCarousel(index));
+        });
+        
+        // Touch/swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        slides.addEventListener('touchstart', (e) => {
+          touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        slides.addEventListener('touchend', (e) => {
+          touchEndX = e.changedTouches[0].screenX;
+          if (touchStartX - touchEndX > 50) {
+            nextBtn.click();
+          } else if (touchEndX - touchStartX > 50) {
+            prevBtn.click();
+          }
+        });
+      }
+    {% endif %}
+    
+    {% if media_layout == 'thumbnails' %}
+      // Thumbnails layout functionality
+      const thumbnailButtons = document.querySelectorAll('.thumbnail-button');
+      const mainMediaItems = document.querySelectorAll('.main-media');
+      
+      thumbnailButtons.forEach((button, index) => {
+        button.addEventListener('click', () => {
+          // Update active states
+          thumbnailButtons.forEach(btn => btn.classList.remove('active'));
+          mainMediaItems.forEach(media => media.classList.remove('active'));
+          
+          button.classList.add('active');
+          mainMediaItems[index].classList.add('active');
+          currentIndex = index;
+        });
+      });
+    {% endif %}
+    
+    {% if enable_lightbox %}
+      // Lightbox functionality
+      window.openLightbox = function(index) {
+        currentIndex = index;
+        const lightbox = document.getElementById('media-lightbox');
+        const lightboxMedia = document.getElementById('lightbox-media');
+        const mediaItems = document.querySelectorAll('[data-media-index]');
+        
+        if (lightbox && mediaItems[index]) {
+          const mediaContent = mediaItems[index].querySelector('.media-item').cloneNode(true);
+          lightboxMedia.innerHTML = '';
+          lightboxMedia.appendChild(mediaContent);
+          
+          lightbox.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        }
+      };
+      
+      window.closeLightbox = function() {
+        const lightbox = document.getElementById('media-lightbox');
+        if (lightbox) {
+          lightbox.style.display = 'none';
+          document.body.style.overflow = '';
+        }
+      };
+      
+      window.lightboxPrev = function() {
+        currentIndex = (currentIndex - 1 + totalMedia) % totalMedia;
+        openLightbox(currentIndex);
+      };
+      
+      window.lightboxNext = function() {
+        currentIndex = (currentIndex + 1) % totalMedia;
+        openLightbox(currentIndex);
+      };
+      
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        const lightbox = document.getElementById('media-lightbox');
+        if (lightbox && lightbox.style.display !== 'none') {
+          if (e.key === 'Escape') closeLightbox();
+          if (e.key === 'ArrowLeft') lightboxPrev();
+          if (e.key === 'ArrowRight') lightboxNext();
+        }
+      });
+    {% endif %}
+  })();
+</script>

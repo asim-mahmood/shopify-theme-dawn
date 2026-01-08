@@ -1,0 +1,86 @@
+{% comment %}
+  Renders individual media item (image, video, model)
+
+  Accepts:
+  - media: {Object} Media object
+  - index: {Number} Media index
+  - enable_lightbox: {Boolean}
+  - enable_zoom: {Boolean}
+  - media_aspect_ratio: {String}
+  - enable_video_looping: {Boolean}
+{% endcomment %}
+
+<div
+  class="media-item media-item--{{ media.media_type }}"
+  {% if enable_lightbox %}
+    onclick="openLightbox({{ index }})" style="cursor: pointer;"
+  {% endif %}
+>
+  {% case media.media_type %}
+    {% when 'image' %}
+      <img
+        srcset="
+          {{ media | image_url: width: 375 }} 375w,
+          {{ media | image_url: width: 750 }} 750w,
+          {{ media | image_url: width: 1100 }} 1100w,
+          {{ media | image_url: width: 1500 }} 1500w,
+          {{ media | image_url: width: 2000 }} 2000w
+        "
+        sizes="(min-width: 990px) 50vw, 100vw"
+        src="{{ media | image_url: width: 1500 }}"
+        alt="{{ media.alt | escape }}"
+        loading="{% if index == 0 %}eager{% else %}lazy{% endif %}"
+        width="{{ media.width }}"
+        height="{{ media.height }}"
+        class="media-image"
+      >
+      {% if enable_zoom %}
+        <div class="zoom-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M8.5 3C11.538 3 14 5.462 14 8.5C14 9.8 13.536 11 12.773 11.954L16.916 16.097L15.5 17.514L11.357 13.371C10.403 14.134 9.203 14.598 7.903 14.598C4.865 14.598 2.403 12.136 2.403 9.098C2.403 6.06 4.865 3.598 7.903 3.598V3ZM8.5 5C6.567 5 5 6.567 5 8.5C5 10.433 6.567 12 8.5 12C10.433 12 12 10.433 12 8.5C12 6.567 10.433 5 8.5 5Z"/>
+          </svg>
+        </div>
+      {% endif %}
+
+    {% when 'external_video' %}
+      <div class="media-video media-video--external">
+        {% if media.host == 'youtube' %}
+          <iframe
+            src="https://www.youtube.com/embed/{{ media.external_id }}?enablejsapi=1{% if enable_video_looping %}&loop=1&playlist={{ media.external_id }}{% endif %}"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            title="{{ media.alt | escape }}"
+          ></iframe>
+        {% elsif media.host == 'vimeo' %}
+          <iframe
+            src="https://player.vimeo.com/video/{{ media.external_id }}{% if enable_video_looping %}?loop=1{% endif %}"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowfullscreen
+            title="{{ media.alt | escape }}"
+          ></iframe>
+        {% endif %}
+      </div>
+
+    {% when 'video' %}
+      <video
+        controls
+        {% if enable_video_looping %}
+          loop
+        {% endif %}
+        muted
+        playsinline
+        poster="{{ media.preview_image | image_url: width: 1500 }}"
+        class="media-video"
+      >
+        {% for source in media.sources %}
+          <source src="{{ source.url }}" type="{{ source.mime_type }}">
+        {% endfor %}
+        Your browser does not support the video tag.
+      </video>
+
+    {% when 'model' %}
+      <div class="media-model">
+        {{ media | model_viewer_tag: image_size: '1500x', reveal: 'interaction', toggleable: true }}
+      </div>
+  {% endcase %}
+</div>
