@@ -110,16 +110,30 @@
 
                   {% comment %} PRICE BLOCK {% endcomment %}
                 {% when 'price' %}
-                  <div class="product-price-wrapper">
-                    <div class="price" data-price-wrapper>
-                      {% if selected_varient.compare_at_price > selected_varient.price %}
-                        <span class="price__sale">{{ selected_varient.price | money }}</span>
-                        <s class="price__compare">{{ selected_varient.compare_at_price | money }}</s>
-                      {% else %}
-                        <span class="price__regular">{{ selected_varient.price | money }}</span>
-                      {% endif %}
+                  {% if block.settings.show_price %}
+                    <div class="product-price-wrapper">
+                      <div
+                        class="price"
+                        data-price-wrapper
+                        data-show-compare="{{ block.settings.show_compare_at }}"
+                      >
+                        {% if selected_varient.compare_at_price > selected_varient.price
+                          and block.settings.show_compare_at
+                        %}
+                          <span class="price__sale">
+                            {{ selected_varient.price | money }}
+                          </span>
+                          <s class="price__compare">
+                            {{ selected_varient.compare_at_price | money }}
+                          </s>
+                        {% else %}
+                          <span class="price__regular">
+                            {{ selected_varient.price | money }}
+                          </span>
+                        {% endif %}
+                      </div>
                     </div>
-                  </div>
+                  {% endif %}
 
                   {% comment %} DESCRIPTION BLOCK {% endcomment %}
                 {% when 'description' %}
@@ -583,49 +597,81 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const allInputs = variantSelectors.querySelectorAll('select, input[type="radio"]');
   const hiddenVariantInput = document.querySelector('input[name="id"]');
-  const priceWrapper = document.querySelector('[data-price-wrapper]');
+  const priceWrappers = document.querySelectorAll('[data-section-id="{{ section.id }}"] [data-price-wrapper]');
+  const priceWrapper = Array.from(priceWrappers).find(wrapper => wrapper.closest('[data-section-id="{{ section.id }}"]'));
   const submitButton = document.querySelector('button[name="add"]');
   const availabilityElement = document.querySelector('[data-variant-availability]');
   const skuElement = document.querySelector('[data-variant-sku]');
-  
+
   const product = {{ product | json }};
-  
+
   allInputs.forEach(input => input.addEventListener('change', updateVariant));
-  
+
   function updateVariant() {
-    const selectedOptions = [];
-    
-    variantSelectors.querySelectorAll('select').forEach(select => selectedOptions.push(select.value));
-    
-    const radioGroups = {};
+    // Build selected options map by option position (option1/option2/option3)
+    const selectedByIndex = [];
+
+    // Dropdowns (order on page matches product option order in your markup)
+    variantSelectors.querySelectorAll('select').forEach((select, index) => {
+      selectedByIndex[index] = select.value;
+    });
+
+    // Radios (parse the option name safely, then map to correct index via product.options)
     variantSelectors.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
-      const optionName = radio.name.match(/options\[(.*?)\]/)[1];
-      radioGroups[optionName] = radio.value;
+      const match = radio.name.match(/options\[(.+?)\]/);
+      if (!match) return;
+
+      const optionName = match[1];
+      const optionIndex = Array.isArray(product.options)
+        ? product.options.indexOf(optionName)
+        : -1;
+
+      if (optionIndex > -1) selectedByIndex[optionIndex] = radio.value;
     });
-    
-    for (let key in radioGroups) selectedOptions.push(radioGroups[key]);
-    
-    const matchedVariant = product.variants.find(variant => {
-      return selectedOptions.every((option, index) => variant.options[index] === option);
+
+    // If some option not chosen yet, don't force a match
+    if (selectedByIndex.some(v => !v)) return;
+
+    // Exact match by option positions (prevents wrong matches)
+    const matchedVariant = product.variants.find(v => {
+      return v.options.every((optValue, i) => optValue === selectedByIndex[i]);
     });
-    
+
     if (matchedVariant) {
-      hiddenVariantInput.value = matchedVariant.id;
-      
-      if (priceWrapper) {
-        if (matchedVariant.compare_at_price && matchedVariant.compare_at_price > matchedVariant.price) {
-          priceWrapper.innerHTML = `<span class="price__sale">${formatMoney(matchedVariant.price)}</span><s class="price__compare">${formatMoney(matchedVariant.compare_at_price)}</s>`;
+      if (hiddenVariantInput) hiddenVariantInput.value = matchedVariant.id;
+
+     // Update ALL price blocks on the page
+      if (priceWrappers && priceWrappers.length) {
+        priceWrappers.forEach(wrapper => {
+        const showCompare = wrapper.dataset.showCompare === 'true';
+
+        if (
+          showCompare &&
+          matchedVariant.compare_at_price &&
+          matchedVariant.compare_at_price > matchedVariant.price
+        ) {
+          wrapper.innerHTML = `
+            <span class="price__sale">${formatMoney(matchedVariant.price)}</span>
+            <s class="price__compare">${formatMoney(matchedVariant.compare_at_price)}</s>
+          `;
         } else {
-          priceWrapper.innerHTML = `<span class="price__regular">${formatMoney(matchedVariant.price)}</span>`;
+          wrapper.innerHTML = `
+            <span class="price__regular">${formatMoney(matchedVariant.price)}</span>
+          `;
         }
+      });
+
       }
-      
+
+
       if (availabilityElement) {
-        availabilityElement.innerHTML = matchedVariant.available ? '<span class="in-stock">✓ In stock</span>' : '<span class="out-of-stock">Sold out</span>';
+        availabilityElement.innerHTML = matchedVariant.available
+          ? '<span class="in-stock">✓ In stock</span>'
+          : '<span class="out-of-stock">Sold out</span>';
       }
-      
-      if (skuElement && matchedVariant.sku) skuElement.textContent = matchedVariant.sku;
-      
+
+      if (skuElement) skuElement.textContent = matchedVariant.sku || '';
+
       if (submitButton) {
         submitButton.disabled = !matchedVariant.available;
         const buttonText = submitButton.querySelector('span');
@@ -633,15 +679,17 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.classList.toggle('button--primary', matchedVariant.available);
         submitButton.classList.toggle('button--secondary', !matchedVariant.available);
       }
-      
+
       if (window.history.replaceState) {
         window.history.replaceState({}, '', `${window.location.pathname}?variant=${matchedVariant.id}`);
       }
     }
   }
-  
+
   function formatMoney(cents) {
-    return typeof Shopify !== 'undefined' && Shopify.formatMoney ? Shopify.formatMoney(cents) : '{{ cart.currency.symbol }}' + (cents / 100).toFixed(2);
+    return typeof Shopify !== 'undefined' && Shopify.formatMoney
+      ? Shopify.formatMoney(cents)
+      : '{{ cart.currency.symbol }}' + (cents / 100).toFixed(2);
   }
 });
 </script>
@@ -887,7 +935,20 @@ document.addEventListener('DOMContentLoaded', function() {
       "type": "price",
       "name": "💰 Price",
       "limit": 1,
-      "settings": []
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_price",
+          "label": "Show price",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_compare_at",
+          "label": "Show compare at price (sale)",
+          "default": true
+        }
+      ]
     },
     {
       "type": "description",
