@@ -1,0 +1,24 @@
+<div>
+  <h2>{{ section.settings.section_title | default: 'This is a custom order section' }}</h2>
+</div>
+{{ customer.name }}
+{% schema %}
+{
+  "name": "Custom Order Section",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "This is a custom order section"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Order Section"
+    }
+  ]
+}
+{% endschema %}
