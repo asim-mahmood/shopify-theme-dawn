@@ -126,13 +126,21 @@
 
 .header-actions {
   display: flex;
-  gap: 20px;
+  align-items: center; /* KEY FIX */
+  gap: 16px;
+  height: 33px; /* optional but recommended */
 }
 
+
 .header-actions a {
-  color: #0d0f20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 33px;
+  line-height: 1;
   text-decoration: none;
 }
+
 
 /* =========================
    ICON LINK (CART)
